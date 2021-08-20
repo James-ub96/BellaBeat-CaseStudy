@@ -1,0 +1,454 @@
+---
+title: "Bellabeat Google Case Study"
+author: "James Phillips"
+date: "2021-08-02"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE,message=FALSE,results='hide')
+```
+
+## Introduction:
+
+This case study acts as a capstone project for the **Google Data Analytics Professional Certificate** course.
+Through this project I will act as a junior data analyst assisting the marketing team of Bellabeat.
+
+[Bellabeat](https://bellabeat.com/) is a health and wellness company focused on using smart-technology to help women empower themselves with data.
+
+> Bellabeat devices collect physiological data 24/7, used solely for providing you with the most accurate and granular understanding of your body. They’re lightweight, water-resistant, and come with a replaceable battery that lasts up to 6 months. [...] Optimize the way you train, recover, and sleep with daily reporting on your mobile app. Know what to eat, when to work out, and how much sleep you need—all aligned with your cycle. [...] Workout routines, guided meditations, beauty tips, and nutrition plans are all within reach with just a tap of your finger.
+
+Bellabeat's list of products include:
+
+* **Bellabeat app**: The Bellabeat app provides users with health data related to their activity, sleep, stress,
+menstrual cycle, and mindfulness habits. This data can help users better understand their current habits and
+make healthy decisions. The Bellabeat app connects to their line of smart wellness products.
+* **Leaf**: Bellabeat’s classic wellness tracker can be worn as a bracelet, necklace, or clip. The Leaf tracker connects
+to the Bellabeat app to track activity, sleep, and stress.
+* **Time**: This wellness watch combines the timeless look of a classic timepiece with smart technology to track user
+activity, sleep, and stress. The Time watch connects to the Bellabeat app to provide you with insights into your
+daily wellness.
+* **Spring**: This is a water bottle that tracks daily water intake using smart  to ensure that you are
+appropriately hydrated throughout the day. The Spring bottle connects to the Bellabeat app to track your
+hydration levels.technology
+* **Bellabeat membership**: Bellabeat also offers a subscription-based membership program for users.
+Membership gives users 24/7 access to fully personalized guidance on nutrition, activity, sleep, health and
+beauty, and mindfulness based on their lifestyle and goals.
+
+
+
+
+## Goals and Objectives:
+
+**Task:** analyze smart device usage data in order to gain insight into how consumers use non-Bellabeat smart
+devices, using this apply insights to one of Bellabeat's product delivering clear business actions that can be taken.
+
+
+1. What are some trends in smart device usage?
+2. How could these trends apply to Bellabeat customers?
+3. How could these trends help influence Bellabeat marketing strategy?
+
+What is considered healthyjjjj
+Sleep: ['Between 7 and 9 hours of sleep'](https://www.mayoclinic.org/healthy-lifestyle/adult-health/in-depth/sleep-the-foundation-for-healthy-habits/art-20270117) and ['fall asleep within 10-20 mins'](https://www.healthline.com/health/healthy-sleep/how-long-does-it-take-to-fall-asleep#when-to-see-a-doctor)
+
+Physical Activity: ['30 minutes per day](https://www.health.harvard.edu/blog/healthy-lifestyle-5-keys-to-a-longer-life-2018070514186) or ['between 150 and 300 minutes per week'](https://www.who.int/publications/i/item/9789240015128) with ['between 7500 - 10,000 steps per day'](https://www.prevention.com/fitness/fitness-tips/a31788212/how-many-steps-should-you-walk-a-day/)
+
+
+
+
+
+## Preparing our Data:
+
+This case study uses data from the Kaggle data set ['Fitbit'](kaggle.com/arashnic/fitbit) complied by Möbius.
+The dataset consists of fitness data generated between 12 April to 12 May 2016 by 33 Fitbit users. 
+
+Possible issues with the data:
+* Gender of Ids is not present
+  + As Bellabeat is geared towards Women seeing trend difference between men and women would be useful.
+* Age of Ids is not present
+  + Know different trends between age groups would all for Bellabeat to target different age groups with different marketing strategies
+  
+Due to the similarities between the FitBit with the **Bellabeat Leaf** I have chosen to focus this case study on this product while also touching on the **Bellabeat membership**.
+
+
+
+```{r loading libraries and datasets}
+library(tidyverse)
+library(lubridate)
+library(dplyr)
+library(ggplot2)
+library(tidyr)
+library(readr)
+
+dailyActivity_merged <- read_csv("Fitabase Data 4.12.16-5.12.16/dailyActivity_merged.csv")
+heartrate_seconds_merged <- read_csv("Fitabase Data 4.12.16-5.12.16/heartrate_seconds_merged.csv")
+hourlyCalories_merged <- read_csv("Fitabase Data 4.12.16-5.12.16/hourlyCalories_merged.csv")
+hourlyIntensities_merged <- read_csv("Fitabase Data 4.12.16-5.12.16/hourlyIntensities_merged.csv")
+hourlySteps_merged <- read_csv("Fitabase Data 4.12.16-5.12.16/hourlySteps_merged.csv")
+minuteCaloriesNarrow_merged <- read_csv("Fitabase Data 4.12.16-5.12.16/minuteCaloriesNarrow_merged.csv")
+minuteIntensitiesNarrow_merged <- read_csv("Fitabase Data 4.12.16-5.12.16/minuteIntensitiesNarrow_merged.csv")
+minuteMETsNarrow_merged <- read_csv("Fitabase Data 4.12.16-5.12.16/minuteMETsNarrow_merged.csv")
+minuteSleep_merged <- read_csv("Fitabase Data 4.12.16-5.12.16/minuteSleep_merged.csv")
+minuteStepsNarrow_merged <- read_csv("Fitabase Data 4.12.16-5.12.16/minuteStepsNarrow_merged.csv")
+sleepDay_merged <- read_csv("Fitabase Data 4.12.16-5.12.16/sleepDay_merged.csv")
+weightLogInfo_merged <- read_csv("Fitabase Data 4.12.16-5.12.16/weightLogInfo_merged.csv")
+
+
+```
+Our data is broken down into multiple spreadsheets encompassing *Daily*, *Hourly*, *Per Minute*, *Per Second*, as well as *Sleep* and *Weight Logs*
+
+**Hourly:**
+
+* dailyActivity_merged.csv
+* dailyCalories_merged.csv
+* dailyIntensities_merged.csv
+* dailySteps_merged.csv
+* sleepday_merged.csv
+
+A quick look at these spreadsheets shows that *dailyActivity_merged.csv* is the combinded data of the other three hourly spreadsheets.As such only the *dailyActivity_merged.csv* speadsheet is needed.
+
+**Hourly:**
+
+* hourlyCalories_merged.csv
+* hourlyIntensities_merged.csv
+* hourlySteps_merged.csv
+
+Unlike our hourly data doesn't have a pre-merged copy, as such we will merge the Data as such one of our first tasks shall be to merge these files.
+
+This can be done with the following code in R:
+
+```{r Merging Hourly Data}
+hourlyActivity_merged <- hourlyCalories_merged %>%
+  merge(hourlyIntensities_merged,by = c('Id','ActivityHour')) %>%
+  merge(hourlySteps_merged,by = c('Id','ActivityHour'))
+
+```
+or the following SQL Query:
+```{}
+SELECT * AS hourlyActivity_merged_sql
+
+FROM hourlyCalories_merged
+
+FULL OUTER JOIN hourlyIntensities_merged ON hourlyCalories_merged.Id = hourlyIntensities_merged.Id AND hourlyCalories_merged.ActivityHour = hourlyIntensities_merged.ActivityHour
+
+FULL OUTER JOIN hourlySteps_merged ON hourlyCalories_merged.Id = hourlySteps_merged.Id AND hourlyCalories_merged.ActivityHour = hourlySteps_merged.ActivityHour
+
+```
+
+**Per Minute:***
+
+* minuteCaloriesNarrow_merged.csv
+* minuteCaloriesWide_merged.csv
+* minuteIntensitiesNarrow_merged.csv
+* minuteIntensitiesWide_merged.csv
+* minuteMETsNarrow_merged.csv
+* minuteSleep_merged.csv
+* minuteStepsNarrow_merged.csv
+* minuteStepsWide_merged.csv
+
+
+The *Per Minute* data is split into both a Narrow and Wide format, for this study we will use the Narrow format and ignore the Wide formats.
+Again we will merge the Narrow data into one per minute table.
+
+```{r Merging minute Data}
+minuteActivity_merged <- minuteCaloriesNarrow_merged %>%
+  merge(minuteIntensitiesNarrow_merged,by = c('Id','ActivityMinute')) %>%
+  merge(minuteStepsNarrow_merged,by = c('Id','ActivityMinute')) %>%
+  merge(minuteMETsNarrow_merged,by = c('Id','ActivityMinute'))
+
+```
+
+
+**Per Second**
+
+* heartrate_seconds_merged.csv
+
+There is only one table which includes data by the second, the heart rate table.
+
+**Misc**
+
+* weightLogInfo_merged.csv
+
+The weightLogIndo_merged table is a little different than the others. The weight log table is populated not by the device but by the user, as such this table can show us who uses a weight log feature and we can either push to grab more users using it or disregard it altogether.
+
+
+
+
+
+
+This leaves us with only a few tables that we will spend our time looking at:
+
+* dailyActivity_merged
+* hourlyActivity_merged
+* minuteActivity_merged
+* sleepday_merged
+* weightLogInfo_merged
+
+We must now correct the format for the Datetime columns of our tables; these are all in tha character class format and should be in the datetime class instead.
+
+```{r Datetime Format corrections}
+
+dailyActivity_merged$ActivityDate=as.POSIXct(dailyActivity_merged$ActivityDate, format="%m/%d/%Y", tz=Sys.timezone())
+
+hourlyActivity_merged$ActivityHour=as.POSIXct(hourlyActivity_merged$ActivityHour, format="%m/%d/%Y %I:%M:%S %p", tz=Sys.timezone())
+
+minuteActivity_merged$ActivityMinute=as.POSIXct(minuteActivity_merged$ActivityMinute, format="%m/%d/%Y %I:%M:%S %p", tz=Sys.timezone())
+
+sleepDay_merged$SleepDay=as.POSIXct(sleepDay_merged$SleepDay, format="%m/%d/%Y %I:%M:%S %p", tz=Sys.timezone())
+
+
+
+```
+
+
+Now we can start to look at this data.
+
+## Analysis of Data:
+
+First we will look at the completeness of our data. We know that the data was taken from 33 Ids; knowing this we can make the assumption that each table should have 33 unique Ids.
+
+```{r Checking for Completeness, echo=TRUE, results='markup'}
+datasets <- c("dailyActivity","hourlyActivity","minuteActivity", "sleepDay", "secHeartrate","weightLog") 
+distinctIds_tables <- c(n_distinct(dailyActivity_merged$Id),n_distinct(hourlyActivity_merged$Id),
+                        n_distinct(minuteActivity_merged$Id),n_distinct(sleepDay_merged$Id),
+                        n_distinct(heartrate_seconds_merged$Id),n_distinct(weightLogInfo_merged$Id))
+
+completeness <- paste(round((distinctIds_tables/33)*100,2), "%")
+```
+```{r table, echo=FALSE, results='markup'}
+data.frame(datasets, distinctIds_tables, completeness)
+
+```
+```{r Output, echo=TRUE, results='markup'}
+
+View(data.frame(datasets, distinctIds_tables, completeness))
+
+
+a <- as.data.frame(table(sleepDay_merged$Id))
+nrow(filter(a, Freq >= 16)) / nrow(a)
+
+b <- as.data.frame(table(heartrate_seconds_merged$Id))
+mean(b$Freq) /12 /60 /24
+
+c <- as.data.frame(table(weightLogInfo_merged$Id))
+nrow(filter(c,Freq > 5))
+
+```
+
+
+
+There are a few takeaways and questions that arise from this inital look:
+
+* Activity Tables include the entire 100% of our users
+
+* Only 72% of users used their device while sleeping
+  + Of this 72% - only 54% used the for the majority of the month
+  + Are users **removing** their device while they sleep?
+
+
+* Only 42% of users used their device to measure Heart Rate
+  + On average these users only used the Heart Rate Tracker 33% of the time
+  + Are users turning off heart rate tracking manually or wearing device incorrectly?
+  
+* Only 24% of users used their device to track Weight
+  + Of the 24% only 2 users used the log had more than five entries over the month
+  + Users that only inputted their weight once or twice, are they forgetting? or not bothering after the first input?
+  + How easy is it to access the log?
+
+
+
+We now have an idea of how much our tables are being used; the activity and sleep tables provide information on the majority of our users. The Heart Rate and Weight tables don't even cover half of our users, though the data might not provide us with good unbiased generalized information we can look the lack of use as a point of interest.
+
+
+
+# How Often do Users use their Fitbit?
+
+
+```{r Time Wearing Fitbit}
+
+user_hours_total <- dailyActivity_merged %>%
+  rowwise() %>%
+  group_by(Id, ActivityDate) %>%
+  summarize(TotalHours = sum(VeryActiveMinutes, FairlyActiveMinutes,
+                               LightlyActiveMinutes, SedentaryMinutes))
+
+user_hours_total$TotalHours <- user_hours_total$TotalHours/60
+
+
+user_hours_mean <- user_hours_total %>%
+  group_by(Id) %>%
+  summarise(MeanHours = mean(TotalHours))
+
+
+ggplot(user_hours_mean) + geom_histogram(mapping = aes(x=MeanHours),color="black", fill="lightblue") +
+  geom_vline(xintercept = mean(user_hours_mean$MeanHours),linetype='dotted', color = "red", size=1.5) +
+  annotate(geom = 'text', x = mean(user_hours_mean$MeanHours)-0.3, y = 4,color='Red', label = 'Mean Use',angle=90,size=6)+
+  labs(x='Hours Wearing Fitbit',y='Number of Users',title='How Often Users Wear Their Fitbit') +
+  theme(plot.title = element_text(hjust = 0.5))
+  
+```
+
+
+So we can see most users are wearing their Fitbits throughout most of the day with about half wearing them almost all day.
+The people who are removing them we can take a guess and say they are removing it before they go to sleep as we know only ~70% are using it while sleeping.
+
+# A Focus on What Makes People Healty
+
+## Sleep:
+
+```{r Sleep}
+sleepDay_merged %>%
+  group_by(Id) %>%
+  summarise(MeanSleep = mean(TotalMinutesAsleep)/60) %>%
+  ggplot(aes(x=Id,y=MeanSleep,label=Id))+geom_point(aes(color=Id)) +geom_text(aes(label=Id),hjust=-0.1, vjust=-0.1,size=2.1) +
+  labs(x='Ids',y='Mean Hours Slept',title='Average Amount of Sleep For Users') +
+  geom_hline(yintercept = 7,linetype='dotted', color = "red", size=0.5) +
+  annotate("text", x = 3500000000, y = 7.2, label = "Min Recomended Sleep",color='red',size=2.5) +
+  theme(plot.title = element_text(hjust = 0.5))
+
+
+a<- sleepDay_merged %>%
+  group_by(Id) %>%
+  summarise(MeanSleep = mean(TotalMinutesAsleep)/60) %>%
+  filter(MeanSleep < 7)
+print(nrow(a))
+
+```
+
+Of our users using their Fitbits while sleeping, only 13 users are getting more than the recommended 7 hours of sleep. A little under half of our users aren't sleeping enough! BellaBeat could prompt its users reminding them to get to sleep at specific times.
+
+
+The following plot shows the difference between average time between spent in bed and time actually sleeping, on average it should take between 10~20 mins to fall asleep. From this we can see some of our users are having trouble falling asleep; BellaBeat could prompt such users with suggestions for sleep mediation or classes through the **BellaBeat Subscription App**
+
+![Is it due to insomnia?](C:/Users/James/Documents/R Data Science/Insomnia.png)
+
+
+```{r Plotting Sleep by Day}
+sleepDay_merged$DayofWeek <- wday(as_date(as.POSIXct(sleepDay_merged$SleepDay, format="%m/%d/%Y %H:%M:%S %p")))
+
+sleepDay_merged$DayofWeek = case_when(
+  sleepDay_merged$DayofWeek == 1 ~ 'Sunday',
+  sleepDay_merged$DayofWeek == 2 ~ 'Monday',
+  sleepDay_merged$DayofWeek == 3 ~ 'Tuesday',
+  sleepDay_merged$DayofWeek == 4 ~ 'Wednesday',
+  sleepDay_merged$DayofWeek == 5 ~ 'Thursday',
+  sleepDay_merged$DayofWeek == 6 ~ 'Friday',
+  sleepDay_merged$DayofWeek == 7 ~ 'Saturday',
+)
+
+
+sleepDay_merged %>%
+  group_by(DayofWeek) %>%
+  summarise(MeanSleep = mean(TotalMinutesAsleep),TotalMinutesAsleep) %>%
+  ggplot(aes(x=DayofWeek,y=TotalMinutesAsleep,fill=DayofWeek)) + geom_boxplot() +
+  geom_hline(yintercept = 420,linetype='dotted', color = "black", size=0.8) +
+  annotate("text", x = 4, y = 500, label = "Max Sleep") +
+  annotate("text", x = 1, y = 420, label = "Min Sleep")
+
+```
+We can see our users are sleeping the most on the weekend. This makes sense as most individuals will have the weekend off of work and won't need to wake up early, where during the week users aren't sleeping enough.
+
+This could be users trying to fit in activities during the evening due to working during the day or because they are staying up late not accounting for having to wake up early. Ultimately BellaBeat could implement reminders about going to bed.
+
+
+
+## Physical Activity:
+
+```{r Adjusting hourlyActivity_merged Data Frame}
+# Adding day of week to hourly table
+hourlyActivity_merged$DayofWeek <- wday(as_date(hourlyActivity_merged$ActivityHour))
+hourlyActivity_merged$DayofWeek = case_when(
+  hourlyActivity_merged$DayofWeek == 1 ~ 'Sunday',
+  hourlyActivity_merged$DayofWeek == 2 ~ 'Monday',
+  hourlyActivity_merged$DayofWeek == 3 ~ 'Tuesday',
+  hourlyActivity_merged$DayofWeek == 4 ~ 'Wednesday',
+  hourlyActivity_merged$DayofWeek == 5 ~ 'Thursday',
+  hourlyActivity_merged$DayofWeek == 6 ~ 'Friday',
+  hourlyActivity_merged$DayofWeek == 7 ~ 'Saturday',
+)
+
+hourlyActivity_merged$HourofDay <- hour(hourlyActivity_merged$ActivityHour)
+
+# Adding day of week to Daily Table
+dailyActivity_merged$DayofWeek <- wday(as_date(dailyActivity_merged$ActivityDate))
+dailyActivity_merged$DayofWeek = case_when(
+  dailyActivity_merged$DayofWeek == 1 ~ 'Sunday',
+  dailyActivity_merged$DayofWeek == 2 ~ 'Monday',
+  dailyActivity_merged$DayofWeek == 3 ~ 'Tuesday',
+  dailyActivity_merged$DayofWeek == 4 ~ 'Wednesday',
+  dailyActivity_merged$DayofWeek == 5 ~ 'Thursday',
+  dailyActivity_merged$DayofWeek == 6 ~ 'Friday',
+  dailyActivity_merged$DayofWeek == 7 ~ 'Saturday',
+)
+
+
+```
+
+
+As previously mentioned the main tenants of a healthy lifestyle when it comes to physical activty were 30mins a day or 150-300mins a week of fairly active to very active activity and between 7500-10000 steps per day.
+
+we'll take a look at step counts first:
+
+```{r Steps Per Day over the Month}
+
+StepsByDay <- dailyActivity_merged %>%
+  group_by(ActivityDate,DayofWeek) %>%
+  summarise(meanSteps = mean(TotalSteps))
+ggplot(StepsByDay, aes(x=ActivityDate,y=meanSteps,fill=DayofWeek)) +geom_bar(stat = 'identity')+ 
+  geom_rect(inherit.aes=FALSE,aes(xmin=min(StepsByDay$ActivityDate)-100000, xmax=max(StepsByDay$ActivityDate)+100000, ymin=7500, ymax=10000), alpha=0.01, fill="red") +
+  annotate('text',x=median(StepsByDay$ActivityDate),y=9000,label='Recommended Steps',color='red')
+
+StepsByDay %>%
+  group_by(DayofWeek) %>%
+  summarise(meanSteps2 = mean(meanSteps)) %>%
+  ggplot(aes(x=DayofWeek,y=meanSteps2,fill=DayofWeek)) +geom_bar(stat = 'identity')+ ylim(0,10500)+
+  annotate('text',x=median(StepsByDay$DayofWeek),y=9000,label='Recommended Steps',color='black') +
+  geom_hline(yintercept = 7500,linetype='dotted', color = "black", size=1) +
+  geom_hline(yintercept = 10000,linetype='dotted', color = "black", size=1)
+```
+
+
+```{r Step Hours}
+
+ggplot(data = hourlyActivity_merged, aes(x=HourofDay,y=StepTotal,color=c('red'))) + geom_point() +geom_smooth(color='blue')
+
+StepsByHour <- hourlyActivity_merged %>%
+  group_by(HourofDay,DayofWeek) %>%
+  summarise(meanSteps = mean(StepTotal))
+
+
+ggplot(data = StepsByHour, aes(x=HourofDay,y=meanSteps,color=DayofWeek)) +
+  geom_smooth() +
+  geom_line() +
+  facet_wrap(~DayofWeek)+
+  ylim(0,800)+
+  geom_vline(xintercept = 9,linetype='dotted', color = "black", size=0.4)+
+  geom_vline(xintercept = 17,linetype='dotted', color = "black", size=0.4)+
+  geom_vline(xintercept = 23,linetype='dotted', color = "red", size=0.4)+
+  geom_vline(xintercept = 7,linetype='dotted', color = "red", size=0.4)+
+  labs(x='Hour of Day',y='Mean Steps',title='Average Steps per Weekday')
+
+```
+
+
+
+
+
+
+
+
+## R Markdown
+
+```{r cars}
+summary(cars)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
