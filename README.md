@@ -1,1 +1,0 @@
-# BellaBeat-CaseStudy
