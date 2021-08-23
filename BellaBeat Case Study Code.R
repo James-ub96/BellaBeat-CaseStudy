@@ -250,9 +250,13 @@ ggplot(sleepDay_merged, aes(x=SleepDay, y=TotalMinutesAsleep)) +
 
 aggregate(dailyActivity_merged[,c('VeryActiveMinutes','FairlyActiveMinutes','LightlyActiveMinutes','SedentaryMinutes')], list(dailyActivity_merged$Id), mean)
 
+ggplot(data = hourlyActivity_merged, aes(x=HourofDay,y=StepTotal)) + geom_histogram(stat = 'identity',fill='red') +
+  geom_vline(xintercept = 9,linetype='dotted',color='Blue',size=1.5) +
+  geom_vline(xintercept = 17,linetype='dotted',color='Blue',size=1.5)
 
 
-
+StepsByDay$meanSteps
+nrow(filter(StepsByDay, meanSteps>7500))/length(StepsByDay$meanSteps)
 
 
 UserActiveType <- dailyActivity_merged[,c('Id','VeryActiveMinutes','FairlyActiveMinutes','LightlyActiveMinutes','SedentaryMinutes')] %>%

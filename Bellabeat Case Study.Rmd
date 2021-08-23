@@ -407,10 +407,25 @@ StepsByDay %>%
   geom_hline(yintercept = 10000,linetype='dotted', color = "black", size=1)
 ```
 
+```{r Percent above recommended, results='markup',echo=TRUE}
+nrow(filter(StepsByDay, meanSteps>7500))/length(StepsByDay$meanSteps)
+
+```
+Only 61% of of our days are reaching the 7500 step minimum recommended step counts, only three days of the week meet the minimum on average: Saturday,Monday, Tuesday, and Wednesday.
+
+This makes some sense as people generally use Sunday as a rest day and thursday/friday people may be tired from the work week.
+
+BellaBeat could encourage people at the end of the work week to get some steps in to complete their week.
+
+
 
 ```{r Step Hours}
 
-ggplot(data = hourlyActivity_merged, aes(x=HourofDay,y=StepTotal,color=c('red'))) + geom_point() +geom_smooth(color='blue')
+ggplot(data = hourlyActivity_merged, aes(x=HourofDay,y=StepTotal,color=c('red'))) + geom_point() +geom_smooth(color='blue')+
+  geom_vline(xintercept = 8.9,linetype='dotted',color='black',size=1.5) +
+  geom_vline(xintercept = 17.1,linetype='dotted',color='black',size=1.5)+
+  geom_vline(xintercept = 23.1,linetype='dotted', color = "black", size=1)+
+  geom_vline(xintercept = 6.9,linetype='dotted', color = "black", size=1)
 
 StepsByHour <- hourlyActivity_merged %>%
   group_by(HourofDay,DayofWeek) %>%
@@ -424,16 +439,31 @@ ggplot(data = StepsByHour, aes(x=HourofDay,y=meanSteps,color=DayofWeek)) +
   ylim(0,800)+
   geom_vline(xintercept = 9,linetype='dotted', color = "black", size=0.4)+
   geom_vline(xintercept = 17,linetype='dotted', color = "black", size=0.4)+
-  geom_vline(xintercept = 23,linetype='dotted', color = "red", size=0.4)+
-  geom_vline(xintercept = 7,linetype='dotted', color = "red", size=0.4)+
+  geom_vline(xintercept = 23,linetype=6, color = "black", size=0.4)+
+  geom_vline(xintercept = 7,linetype=6, color = "black", size=0.4)+
   labs(x='Hour of Day',y='Mean Steps',title='Average Steps per Weekday')
 
 ```
 
 
+From these charts we can see during the work week step counts remain fairly steady with peaks before and after work, with Saturday afternoon being most peoples main day of steps.
 
 
 
+
+# Closing Thoughts and Recommendations:
+
+Sleep:
+BellaBeat's leaf is situated in a position where it could be strongly used during sleep cycles as it **isn't a clunky device but is a comfy device that isn't bulky** which would encourage users to **keep their device on during while sleeping.**
+We saw through the Sleep Logs of our users that many had issues getting to sleep. If BellaBeat notices a user spending a significant amount of time in bed vs actually being asleep **BellaBeat could prompt such users with suggestions for sleep mediation or classes through the BellaBeat Subscription App**
+
+While most users were getting more sleep during the weekend, during the week they only just made the minimum seven hour suggested sleep time. **BellaBeat could integrate reminder to users to go to sleep at specific times which could be programmed by users during initial set up of the App**
+
+
+Physical Activity:
+
+On average users are failing to reach their recommended steps later in the work week. BellaBeat could prompt users to "complete" their week by implementing a **"hot steak" of completing the minimum steps every day.** One  downside to this is users who fall off their "hot streak" may be less inclinded to keep going and feel disheartended, a possible way to solve this could offer users the chance to save their streak by going above and beyond the following day.
+i.e. 7500steps Monday, 8000steps Tuesday, 7500steps Wednesday, 6000steps Thursday, **Prompt: 10000steps Friday to save streak!**
 
 
 
