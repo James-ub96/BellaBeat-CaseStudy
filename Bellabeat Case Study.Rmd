@@ -465,20 +465,3 @@ Physical Activity:
 On average users are failing to reach their recommended steps later in the work week. BellaBeat could prompt users to "complete" their week by implementing a **"hot steak" of completing the minimum steps every day.** One  downside to this is users who fall off their "hot streak" may be less inclinded to keep going and feel disheartended, a possible way to solve this could offer users the chance to save their streak by going above and beyond the following day.
 i.e. 7500steps Monday, 8000steps Tuesday, 7500steps Wednesday, 6000steps Thursday, **Prompt: 10000steps Friday to save streak!**
 
-
-
-## R Markdown
-
-```{r cars}
-summary(cars)
-```
-
-## Including Plots
-
-You can also embed plots, for example:
-
-```{r pressure, echo=FALSE}
-plot(pressure)
-```
-
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
